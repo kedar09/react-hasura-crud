@@ -4,6 +4,7 @@ import { Form, Button, Card } from "react-bootstrap";
 import "./add-user.css";
 import { ADD_USER, GET_USERS } from "../../services/User/user.service";
 import { useHistory } from "react-router-dom";
+import swal from "sweetalert";
 
 const AddUser = () => {
   const history = useHistory();
@@ -23,12 +24,13 @@ const AddUser = () => {
         refetchQueries: [{ query: GET_USERS }],
       });
       console.log(addUserResult);
-      alert("add user successfully");
+      //   swal("");
+      swal("Successfully!", "New user added!", "success");
       history.push("/", { updateData: true });
       // window.location.reload();
     } catch (e) {
       console.log(e);
-      alert("add user failed");
+      swal("Failed!", "Add new user request failed!", "error");
     }
   };
 

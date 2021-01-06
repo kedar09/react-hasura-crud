@@ -6,10 +6,11 @@ import { Pencil, Trash } from "phosphor-react";
 import { useHistory } from "react-router-dom";
 import { Spinner, Card } from "react-bootstrap";
 import "./user-list.css";
+import swal from "sweetalert";
 
 const UserList = () => {
   const { loading, error, data } = useQuery(GET_USERS, {
-    fetchPolicy: "cache-and-network",
+    // fetchPolicy: "cache-and-network",
     // ssr: true
     // partialRefetch: true
   });
@@ -41,6 +42,8 @@ const UserList = () => {
       let deleteUserResult = await deleteUser({
         variables: { id: id },
         optimisticResponse: true,
+        // awaitRefetchQueries: true,
+        // refetchQueries: [{ query: GET_USERS }],
         update: (cache) => {
           const existingTodos = cache.readQuery({ query: GET_USERS });
           const newTodos = existingTodos.user.filter((t) => t.id !== id);
@@ -51,10 +54,10 @@ const UserList = () => {
         },
       });
       console.log(deleteUserResult);
-      alert("delete user successfully");
+      swal("Successfully!", "User deleted!", "success");
     } catch (e) {
       console.log(e);
-      alert("delete user failed");
+      swal("Failed!", "Delete user request failed!", "error");
     }
   };
   const UserDataList = () => {

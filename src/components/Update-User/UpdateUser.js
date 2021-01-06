@@ -4,6 +4,7 @@ import { GET_USERS, UPDATE_USER } from "../../services/User/user.service";
 import { Form, Button, Card } from "react-bootstrap";
 import "./update-user.css";
 import { useHistory } from "react-router-dom";
+import swal from "sweetalert";
 
 const UpdateUser = (props) => {
   const [state, setState] = useState({ id: "", name: "", address: "" });
@@ -47,11 +48,11 @@ const UpdateUser = (props) => {
         refetchQueries: [{ query: GET_USERS }],
       });
       console.log(updateUserResult);
-      alert("update user successfully");
+      swal("Successfully!", "User updated!", "success");
       history.push("/");
     } catch (e) {
       console.log(e);
-      alert("update user failed");
+      swal("Failed!", "Update user request failed!", "error");
     }
   };
 
@@ -99,7 +100,7 @@ const UpdateUser = (props) => {
               className="updateUserSubmitButton"
               onClick={handleSubmit}
             >
-              Submit
+              Update
             </Button>
 
             <Button
