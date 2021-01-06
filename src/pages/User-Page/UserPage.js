@@ -1,17 +1,28 @@
 import React from "react";
-import { Link } from "react-router-dom";
-// import AddUser from "../../components/Add-User/AddUser";
+import { Button, Card } from "react-bootstrap";
+import { useHistory } from "react-router-dom";
 import UserList from "../../components/User-List/UserList";
 import "./user-page.css";
 
-const UserPage = () => {
-  // const [loading, setLoading] = useState(false);
+const UserPage = (props) => {
+  const history = useHistory();
   return (
-    <div className="divUserPage">
-      <div>
-        <Link to="/add-user">Add User</Link>
-        <UserList />
-      </div>
+    <div>
+      <Card>
+        <Card className="cardMargin">
+          <UserList />
+        </Card>
+        <div className="cardMargin">
+          <Button
+            variant="primary"
+            onClick={() => {
+              history.push("/add-user");
+            }}
+          >
+            Add New User
+          </Button>
+        </div>
+      </Card>
     </div>
   );
 };

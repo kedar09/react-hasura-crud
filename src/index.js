@@ -8,7 +8,7 @@ import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const client = new ApolloClient({
-  uri: "https://name/v1/graphql",
+  uri: "https://kd-demo.hasura.app/v1/graphql",
   cache: new InMemoryCache(),
 });
 

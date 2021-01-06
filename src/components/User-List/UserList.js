@@ -1,30 +1,62 @@
-import React, {useState, useEffect} from "react";
+import React from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { Table } from "react-bootstrap";
-import { DELETE_USER, getUsers } from "../../services/User/user.service";
+import { DELETE_USER, GET_USERS } from "../../services/User/user.service";
 import { Pencil, Trash } from "phosphor-react";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
+import { Spinner, Card } from "react-bootstrap";
+import "./user-list.css";
 
-const UserList = (props) => {
-  const { loading, error, data } = useQuery(getUsers);
+const UserList = () => {
+  const { loading, error, data } = useQuery(GET_USERS, {
+    fetchPolicy: "cache-and-network",
+    // ssr: true
+    // partialRefetch: true
+  });
+  //   const [getCurrentUser, { data, loading, error }] = useLazyQuery(getUsers, {fetchPolicy: "cache-and-network" });
   const [deleteUser] = useMutation(DELETE_USER);
   const history = useHistory();
-  // const [loadingUserData, setLoadingUserData] = useState(false);
 
-  if (loading) return "Loading...";
+  //   let isMounted = true;
+  //   useEffect(() => {
+  //     if (isMounted) {
+  //       getCurrentUser();
+  //     }
+  //     return () => {
+  //       isMounted = false;
+  //     };
+  //   }, []);
+  if (loading)
+    return (
+      <Card className="cardSpinner">
+        <Spinner animation="border" role="status">
+          <span className="sr-only">Loading...</span>
+        </Spinner>
+      </Card>
+    );
   if (error) return `Error! ${error.message}`;
 
-  const deleteUserData = async(id) => {
+  const deleteUserData = async (id) => {
     try {
-      let deleteUserResult = await deleteUser({ variables: {id: id} });;
+      let deleteUserResult = await deleteUser({
+        variables: { id: id },
+        optimisticResponse: true,
+        update: (cache) => {
+          const existingTodos = cache.readQuery({ query: GET_USERS });
+          const newTodos = existingTodos.user.filter((t) => t.id !== id);
+          cache.writeQuery({
+            query: GET_USERS,
+            data: { user: newTodos },
+          });
+        },
+      });
       console.log(deleteUserResult);
       alert("delete user successfully");
     } catch (e) {
       console.log(e);
       alert("delete user failed");
-    } 
-  }
-
+    }
+  };
   const UserDataList = () => {
     return data.user.map(({ id, name, address }) => (
       <tbody key={id}>
@@ -32,8 +64,27 @@ const UserList = (props) => {
           <td>{id}</td>
           <td>{name}</td>
           <td>{address}</td>
-          <td><Pencil size={25} color="#0066ff" onClick={()=>{history.push({pathname: '/update-user',state: {id: id, name: name, address: address}})}} /></td>
-          <td><Trash size={25} color="#0066ff" onClick={()=>{deleteUserData(id)}} /></td>
+          <td>
+            <Pencil
+              size={25}
+              color="#0066ff"
+              onClick={() => {
+                history.push({
+                  pathname: "/update-user",
+                  state: { id: id, name: name, address: address },
+                });
+              }}
+            />
+          </td>
+          <td>
+            <Trash
+              size={25}
+              color="#0066ff"
+              onClick={() => {
+                deleteUserData(id);
+              }}
+            />
+          </td>
         </tr>
       </tbody>
     ));
@@ -51,7 +102,7 @@ const UserList = (props) => {
             <th>Delete</th>
           </tr>
         </thead>
-      <UserDataList />
+        <UserDataList />
       </Table>
     </div>
   );

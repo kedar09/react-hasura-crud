@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
-import { UPDATE_USER } from "../../services/User/user.service";
+import { GET_USERS, UPDATE_USER } from "../../services/User/user.service";
 import { Form, Button, Card } from "react-bootstrap";
 import "./update-user.css";
-import { useHistory } from 'react-router-dom';
+import { useHistory } from "react-router-dom";
 
 const UpdateUser = (props) => {
   const [state, setState] = useState({ id: "", name: "", address: "" });
@@ -26,9 +26,29 @@ const UpdateUser = (props) => {
 
   const handleSubmit = async () => {
     try {
-      let updateUserResult = await updateUser({ variables: state });
+      let updateUserResult = await updateUser({
+        variables: state,
+        optimisticResponse: true,
+        awaitRefetchQueries: true,
+        // update: (cache) => {
+        //     const existingUsers = cache.readQuery({query: getUsers});
+        //     const newTodos = existingUsers.user.map(t => {
+        //         if (t.id === state.id) {
+        //             return {...t, name: state.name, address: state.address };
+        //         } else {
+        //             return t;
+        //         }
+        //     });
+        //     cache.writeQuery({
+        //         query: getUsers,
+        //         data: {todos: newTodos}
+        //     });
+        // }
+        refetchQueries: [{ query: GET_USERS }],
+      });
       console.log(updateUserResult);
       alert("update user successfully");
+      history.push("/");
     } catch (e) {
       console.log(e);
       alert("update user failed");
@@ -74,11 +94,20 @@ const UpdateUser = (props) => {
               />
             </Form.Group>
 
-            <Button variant="primary" className="updateUserSubmitButton" onClick={handleSubmit}>
+            <Button
+              variant="primary"
+              className="updateUserSubmitButton"
+              onClick={handleSubmit}
+            >
               Submit
             </Button>
 
-            <Button variant="secondary" onClick={()=> {history.push('/')}}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                history.push("/");
+              }}
+            >
               Cancel
             </Button>
           </Form>

@@ -2,9 +2,11 @@ import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
 import { Form, Button, Card } from "react-bootstrap";
 import "./add-user.css";
-import { ADD_USER } from "../../services/User/user.service";
+import { ADD_USER, GET_USERS } from "../../services/User/user.service";
+import { useHistory } from "react-router-dom";
 
 const AddUser = () => {
+  const history = useHistory();
   const [state, setState] = useState({ name: "", address: "" });
   const [addUser] = useMutation(ADD_USER);
 
@@ -14,9 +16,16 @@ const AddUser = () => {
 
   const handleSubmit = async (e) => {
     try {
-      let addUserResult = await addUser({ variables: state });
+      let addUserResult = await addUser({
+        variables: state,
+        optimisticResponse: true,
+        awaitRefetchQueries: true,
+        refetchQueries: [{ query: GET_USERS }],
+      });
       console.log(addUserResult);
       alert("add user successfully");
+      history.push("/", { updateData: true });
+      // window.location.reload();
     } catch (e) {
       console.log(e);
       alert("add user failed");
